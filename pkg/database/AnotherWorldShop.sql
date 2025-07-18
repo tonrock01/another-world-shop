@@ -40,10 +40,10 @@ CREATE TABLE "images" (
   "updated_at" timestamp
 );
 
-CREATE TABLE "products_catogories" (
+CREATE TABLE "products_categories" (
   "id" varchar PRIMARY KEY,
   "product_id" varchar,
-  "catogory_id" int
+  "category_id" int
 );
 
 CREATE TABLE "categories" (
@@ -75,9 +75,9 @@ ALTER TABLE "oauth" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id");
 
 ALTER TABLE "images" ADD FOREIGN KEY ("product_id") REFERENCES "products" ("id");
 
-ALTER TABLE "products_catogories" ADD FOREIGN KEY ("product_id") REFERENCES "products" ("id");
+ALTER TABLE "products_categories" ADD FOREIGN KEY ("product_id") REFERENCES "products" ("id");
 
-ALTER TABLE "products_catogories" ADD FOREIGN KEY ("catogory_id") REFERENCES "categories" ("id");
+ALTER TABLE "products_categories" ADD FOREIGN KEY ("category_id") REFERENCES "categories" ("id");
 
 ALTER TABLE "orders" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id");
 

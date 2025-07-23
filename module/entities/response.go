@@ -1,6 +1,9 @@
 package entities
 
-import "github.com/gofiber/fiber/v2"
+import (
+	"github.com/gofiber/fiber/v2"
+	"github.com/tonrock01/another-world-shop/pkg/anotherworldlogger"
+)
 
 type IResponse interface {
 	Success(code int, data any) IResponse
@@ -30,6 +33,7 @@ func NewResponse(c *fiber.Ctx) IResponse {
 func (r *Response) Success(code int, data any) IResponse {
 	r.StatusCode = code
 	r.Data = data
+	anotherworldlogger.InitAnotherWorldLogger(r.Context, &r.Data, code).Print().Save()
 	return r
 }
 
@@ -40,6 +44,7 @@ func (r *Response) Error(code int, traceId string, msg string) IResponse {
 		Msg:     msg,
 	}
 	r.IsError = true
+	anotherworldlogger.InitAnotherWorldLogger(r.Context, &r.ErrorRes, code).Print().Save()
 	return r
 }
 

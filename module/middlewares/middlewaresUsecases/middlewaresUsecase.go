@@ -9,7 +9,7 @@ type middlewaresUsecase struct {
 	middlewaresRepository middlewaresRepositories.IMiddlewaresRepository
 }
 
-func MiddlewaresRepository(middlewaresRepository middlewaresRepositories.IMiddlewaresRepository) IMiddlewaresUsecase {
+func MiddlewaresUsecase(middlewaresRepository middlewaresRepositories.IMiddlewaresRepository) IMiddlewaresUsecase {
 	return &middlewaresUsecase{
 		middlewaresRepository: middlewaresRepository,
 	}

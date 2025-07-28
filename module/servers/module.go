@@ -6,10 +6,14 @@ import (
 	"github.com/tonrock01/another-world-shop/module/middlewares/middlewaresRepositories"
 	"github.com/tonrock01/another-world-shop/module/middlewares/middlewaresUsecases"
 	"github.com/tonrock01/another-world-shop/module/monitor/monitorHandlers"
+	"github.com/tonrock01/another-world-shop/module/users/usersHandlers"
+	"github.com/tonrock01/another-world-shop/module/users/usersRepositories"
+	"github.com/tonrock01/another-world-shop/module/users/usersUsecases"
 )
 
 type IModuleFactory interface {
 	MonitorModule()
+	UsersModule()
 }
 
 type moduleFactory struct {
@@ -36,4 +40,14 @@ func (m *moduleFactory) MonitorModule() {
 	handler := monitorHandlers.MonitorHandler(m.s.cfg)
 
 	m.r.Get("/", handler.HealthCheck)
+}
+
+func (m *moduleFactory) UsersModule() {
+	repository := usersRepositories.UsersRepository(m.s.db)
+	usecase := usersUsecases.UsersUsecase(m.s.cfg, repository)
+	handler := usersHandlers.UsersHandler(m.s.cfg, usecase)
+
+	router := m.r.Group("/users")
+
+	router.Post("/signup", handler.SignUpCustomer)
 }

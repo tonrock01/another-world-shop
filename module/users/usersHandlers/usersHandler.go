@@ -6,6 +6,7 @@ import (
 	"github.com/tonrock01/another-world-shop/module/entities"
 	"github.com/tonrock01/another-world-shop/module/users"
 	"github.com/tonrock01/another-world-shop/module/users/usersUsecases"
+	"github.com/tonrock01/another-world-shop/pkg/anotherworldauth"
 )
 
 type userHandlersErrCode string
@@ -26,6 +27,7 @@ type IUsersHandler interface {
 	RefreshPassport(c *fiber.Ctx) error
 	SignOut(c *fiber.Ctx) error
 	SignUpAdmin(c *fiber.Ctx) error
+	GenerateAdminToken(c *fiber.Ctx) error
 }
 
 type usersHandler struct {
@@ -132,6 +134,30 @@ func (h *usersHandler) SignUpAdmin(c *fiber.Ctx) error {
 		}
 	}
 	return entities.NewResponse(c).Success(fiber.StatusCreated, result).Res()
+}
+
+func (h *usersHandler) GenerateAdminToken(c *fiber.Ctx) error {
+	adminToken, err := anotherworldauth.NewAnotherWorldAuth(
+		anotherworldauth.Admin,
+		h.cfg.Jwt(),
+		nil,
+	)
+	if err != nil {
+		return entities.NewResponse(c).Error(
+			fiber.ErrInternalServerError.Code,
+			string(generateAdminTokenErr),
+			err.Error(),
+		).Res()
+	}
+
+	return entities.NewResponse(c).Success(
+		fiber.StatusOK,
+		&struct {
+			Token string `json:"token"`
+		}{
+			Token: adminToken.SignToken(),
+		},
+	).Res()
 }
 
 func (h *usersHandler) SingIn(c *fiber.Ctx) error {

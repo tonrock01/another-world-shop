@@ -10,6 +10,7 @@ import (
 	"github.com/tonrock01/another-world-shop/module/entities"
 	"github.com/tonrock01/another-world-shop/module/middlewares/middlewaresUsecases"
 	"github.com/tonrock01/another-world-shop/pkg/anotherworldauth"
+	"github.com/tonrock01/another-world-shop/pkg/utils"
 )
 
 type middlewareHandlersErrCode string
@@ -18,6 +19,7 @@ const (
 	routerCheckErr middlewareHandlersErrCode = "middleware-001"
 	jwtAuthErr     middlewareHandlersErrCode = "middleware-002"
 	paramsCheckErr middlewareHandlersErrCode = "middleware-003"
+	authorizeErr   middlewareHandlersErrCode = "middleware-004"
 )
 
 type IMiddlewaresHandler interface {
@@ -26,6 +28,7 @@ type IMiddlewaresHandler interface {
 	Logger() fiber.Handler
 	JwtAuth() fiber.Handler
 	ParamsCheck() fiber.Handler
+	Authorize(expectRoleId ...int) fiber.Handler
 }
 
 type middlewaresHandler struct {
@@ -98,7 +101,7 @@ func (h *middlewaresHandler) JwtAuth() fiber.Handler {
 	}
 }
 
-func (m *middlewaresHandler) ParamsCheck() fiber.Handler {
+func (h *middlewaresHandler) ParamsCheck() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		userId := c.Locals("userId")
 		if c.Params("user_id") != userId {
@@ -109,5 +112,47 @@ func (m *middlewaresHandler) ParamsCheck() fiber.Handler {
 			).Res()
 		}
 		return c.Next()
+	}
+}
+
+func (h *middlewaresHandler) Authorize(expectRoleId ...int) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		userRoleId, ok := c.Locals("userRoleId").(int)
+		if !ok {
+			return entities.NewResponse(c).Error(
+				fiber.ErrUnauthorized.Code,
+				string(authorizeErr),
+				"user_id is not integer",
+			).Res()
+		}
+
+		roles, err := h.middlewaresUsecase.FindRole()
+		if err != nil {
+			return entities.NewResponse(c).Error(
+				fiber.ErrInternalServerError.Code,
+				string(authorizeErr),
+				err.Error(),
+			).Res()
+		}
+
+		sum := 0
+		for _, v := range expectRoleId {
+			sum += v
+		}
+
+		expectValueBinary := utils.BinaryConverter(sum, len(roles))
+		userValueBinary := utils.BinaryConverter(userRoleId, len(roles))
+
+		for i := range userValueBinary {
+			if userValueBinary[i]&expectValueBinary[i] == 1 {
+				return c.Next()
+			}
+		}
+
+		return entities.NewResponse(c).Error(
+			fiber.ErrUnauthorized.Code,
+			string(authorizeErr),
+			"no permission to access",
+		).Res()
 	}
 }

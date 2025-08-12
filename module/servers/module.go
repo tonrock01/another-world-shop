@@ -2,6 +2,9 @@ package servers
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/tonrock01/another-world-shop/module/appinfo/appinfoHandlers"
+	"github.com/tonrock01/another-world-shop/module/appinfo/appinfoRepositories"
+	"github.com/tonrock01/another-world-shop/module/appinfo/appinfoUsecases"
 	"github.com/tonrock01/another-world-shop/module/middlewares/middlewaresHandlers"
 	"github.com/tonrock01/another-world-shop/module/middlewares/middlewaresRepositories"
 	"github.com/tonrock01/another-world-shop/module/middlewares/middlewaresUsecases"
@@ -14,6 +17,7 @@ import (
 type IModuleFactory interface {
 	MonitorModule()
 	UsersModule()
+	AppinfoModule()
 }
 
 type moduleFactory struct {
@@ -57,4 +61,14 @@ func (m *moduleFactory) UsersModule() {
 
 	router.Get("/:user_id", m.mid.JwtAuth(), m.mid.ParamsCheck(), handler.GetUserProfile)
 	router.Get("/admin/secret", m.mid.JwtAuth(), m.mid.Authorize(2), handler.GenerateAdminToken)
+}
+
+func (m *moduleFactory) AppinfoModule() {
+	repository := appinfoRepositories.AppinfoRepository(m.s.db)
+	usecase := appinfoUsecases.AppinfoRepository(repository)
+	handler := appinfoHandlers.AppinfoHandler(m.s.cfg, usecase)
+
+	router := m.r.Group("/appinfo")
+
+	router.Get("/apikey", m.mid.JwtAuth(), m.mid.Authorize(2), handler.GenerateApiKey)
 }

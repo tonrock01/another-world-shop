@@ -3,8 +3,8 @@ package monitorHandlers
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/tonrock01/another-world-shop/config"
-	"github.com/tonrock01/another-world-shop/module/entities"
-	"github.com/tonrock01/another-world-shop/module/monitor"
+	"github.com/tonrock01/another-world-shop/modules/entities"
+	"github.com/tonrock01/another-world-shop/modules/monitor"
 )
 
 type IMonitorHandler interface {

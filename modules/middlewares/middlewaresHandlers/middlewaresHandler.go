@@ -7,8 +7,8 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/tonrock01/another-world-shop/config"
-	"github.com/tonrock01/another-world-shop/module/entities"
-	"github.com/tonrock01/another-world-shop/module/middlewares/middlewaresUsecases"
+	"github.com/tonrock01/another-world-shop/modules/entities"
+	"github.com/tonrock01/another-world-shop/modules/middlewares/middlewaresUsecases"
 	"github.com/tonrock01/another-world-shop/pkg/anotherworldauth"
 	"github.com/tonrock01/another-world-shop/pkg/utils"
 )
@@ -20,6 +20,7 @@ const (
 	jwtAuthErr     middlewareHandlersErrCode = "middleware-002"
 	paramsCheckErr middlewareHandlersErrCode = "middleware-003"
 	authorizeErr   middlewareHandlersErrCode = "middleware-004"
+	apiKeyErr      middlewareHandlersErrCode = "middleware-005"
 )
 
 type IMiddlewaresHandler interface {
@@ -29,6 +30,7 @@ type IMiddlewaresHandler interface {
 	JwtAuth() fiber.Handler
 	ParamsCheck() fiber.Handler
 	Authorize(expectRoleId ...int) fiber.Handler
+	ApiKeyAuth() fiber.Handler
 }
 
 type middlewaresHandler struct {
@@ -154,5 +156,19 @@ func (h *middlewaresHandler) Authorize(expectRoleId ...int) fiber.Handler {
 			string(authorizeErr),
 			"no permission to access",
 		).Res()
+	}
+}
+
+func (h *middlewaresHandler) ApiKeyAuth() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		key := c.Get("X-Api-Key")
+		if _, err := anotherworldauth.ParseApiKey(h.cfg.Jwt(), key); err != nil {
+			return entities.NewResponse(c).Error(
+				fiber.ErrUnauthorized.Code,
+				string(apiKeyErr),
+				"api key is invalid or required",
+			).Res()
+		}
+		return c.Next()
 	}
 }

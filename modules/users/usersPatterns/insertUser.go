@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/jmoiron/sqlx"
-	"github.com/tonrock01/another-world-shop/module/users"
+	"github.com/tonrock01/another-world-shop/modules/users"
 )
 
 type IInsertUser interface {

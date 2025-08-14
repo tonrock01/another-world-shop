@@ -6,8 +6,8 @@ import (
 	"time"
 
 	"github.com/jmoiron/sqlx"
-	"github.com/tonrock01/another-world-shop/module/users"
-	"github.com/tonrock01/another-world-shop/module/users/usersPatterns"
+	"github.com/tonrock01/another-world-shop/modules/users"
+	"github.com/tonrock01/another-world-shop/modules/users/usersPatterns"
 )
 
 type IUsersRepository interface {

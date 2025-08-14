@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/jmoiron/sqlx"
-	"github.com/tonrock01/another-world-shop/module/middlewares"
+	"github.com/tonrock01/another-world-shop/modules/middlewares"
 )
 
 type IMiddlewaresRepository interface {

@@ -2,22 +2,25 @@ package servers
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"github.com/tonrock01/another-world-shop/module/appinfo/appinfoHandlers"
-	"github.com/tonrock01/another-world-shop/module/appinfo/appinfoRepositories"
-	"github.com/tonrock01/another-world-shop/module/appinfo/appinfoUsecases"
-	"github.com/tonrock01/another-world-shop/module/middlewares/middlewaresHandlers"
-	"github.com/tonrock01/another-world-shop/module/middlewares/middlewaresRepositories"
-	"github.com/tonrock01/another-world-shop/module/middlewares/middlewaresUsecases"
-	"github.com/tonrock01/another-world-shop/module/monitor/monitorHandlers"
-	"github.com/tonrock01/another-world-shop/module/users/usersHandlers"
-	"github.com/tonrock01/another-world-shop/module/users/usersRepositories"
-	"github.com/tonrock01/another-world-shop/module/users/usersUsecases"
+	"github.com/tonrock01/another-world-shop/modules/appinfo/appinfoHandlers"
+	"github.com/tonrock01/another-world-shop/modules/appinfo/appinfoRepositories"
+	"github.com/tonrock01/another-world-shop/modules/appinfo/appinfoUsecases"
+	"github.com/tonrock01/another-world-shop/modules/files/filesHandlers"
+	"github.com/tonrock01/another-world-shop/modules/files/filesUsecases"
+	"github.com/tonrock01/another-world-shop/modules/middlewares/middlewaresHandlers"
+	"github.com/tonrock01/another-world-shop/modules/middlewares/middlewaresRepositories"
+	"github.com/tonrock01/another-world-shop/modules/middlewares/middlewaresUsecases"
+	"github.com/tonrock01/another-world-shop/modules/monitor/monitorHandlers"
+	"github.com/tonrock01/another-world-shop/modules/users/usersHandlers"
+	"github.com/tonrock01/another-world-shop/modules/users/usersRepositories"
+	"github.com/tonrock01/another-world-shop/modules/users/usersUsecases"
 )
 
 type IModuleFactory interface {
 	MonitorModule()
 	UsersModule()
 	AppinfoModule()
+	FilesModule()
 }
 
 type moduleFactory struct {
@@ -76,4 +79,14 @@ func (m *moduleFactory) AppinfoModule() {
 	router.Get("/apikey", m.mid.JwtAuth(), m.mid.Authorize(2), handler.GenerateApiKey)
 
 	router.Delete("/:category_id/categories", m.mid.JwtAuth(), m.mid.Authorize(2), handler.RemoveCategory)
+}
+
+func (m *moduleFactory) FilesModule() {
+	usecase := filesUsecases.FilesUsecase(m.s.cfg)
+	handler := filesHandlers.FilesHandler(m.s.cfg, usecase)
+
+	router := m.r.Group("/files")
+
+	_ = router
+	_ = handler
 }

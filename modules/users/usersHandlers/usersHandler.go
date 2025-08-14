@@ -5,9 +5,9 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/tonrock01/another-world-shop/config"
-	"github.com/tonrock01/another-world-shop/module/entities"
-	"github.com/tonrock01/another-world-shop/module/users"
-	"github.com/tonrock01/another-world-shop/module/users/usersUsecases"
+	"github.com/tonrock01/another-world-shop/modules/entities"
+	"github.com/tonrock01/another-world-shop/modules/users"
+	"github.com/tonrock01/another-world-shop/modules/users/usersUsecases"
 	"github.com/tonrock01/another-world-shop/pkg/anotherworldauth"
 )
 

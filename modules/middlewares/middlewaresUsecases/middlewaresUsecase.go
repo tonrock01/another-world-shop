@@ -1,8 +1,8 @@
 package middlewaresUsecases
 
 import (
-	"github.com/tonrock01/another-world-shop/module/middlewares"
-	"github.com/tonrock01/another-world-shop/module/middlewares/middlewaresRepositories"
+	"github.com/tonrock01/another-world-shop/modules/middlewares"
+	"github.com/tonrock01/another-world-shop/modules/middlewares/middlewaresRepositories"
 )
 
 type IMiddlewaresUsecase interface {

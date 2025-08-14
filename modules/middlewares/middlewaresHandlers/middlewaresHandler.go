@@ -7,8 +7,8 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/tonrock01/another-world-shop/config"
-	"github.com/tonrock01/another-world-shop/module/entities"
-	"github.com/tonrock01/another-world-shop/module/middlewares/middlewaresUsecases"
+	"github.com/tonrock01/another-world-shop/modules/entities"
+	"github.com/tonrock01/another-world-shop/modules/middlewares/middlewaresUsecases"
 	"github.com/tonrock01/another-world-shop/pkg/anotherworldauth"
 	"github.com/tonrock01/another-world-shop/pkg/utils"
 )

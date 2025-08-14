@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	"github.com/tonrock01/another-world-shop/config"
-	"github.com/tonrock01/another-world-shop/module/users"
-	"github.com/tonrock01/another-world-shop/module/users/usersRepositories"
+	"github.com/tonrock01/another-world-shop/modules/users"
+	"github.com/tonrock01/another-world-shop/modules/users/usersRepositories"
 	"github.com/tonrock01/another-world-shop/pkg/anotherworldauth"
 	"golang.org/x/crypto/bcrypt"
 )

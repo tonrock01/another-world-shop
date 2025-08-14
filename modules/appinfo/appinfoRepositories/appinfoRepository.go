@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/jmoiron/sqlx"
-	"github.com/tonrock01/another-world-shop/module/appinfo"
+	"github.com/tonrock01/another-world-shop/modules/appinfo"
 )
 
 type IAppinfoRepository interface {

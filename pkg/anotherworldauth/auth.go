@@ -8,7 +8,7 @@ import (
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/tonrock01/another-world-shop/config"
-	"github.com/tonrock01/another-world-shop/module/users"
+	"github.com/tonrock01/another-world-shop/modules/users"
 )
 
 type TokenType string

@@ -4,7 +4,7 @@ import (
 	"os"
 
 	"github.com/tonrock01/another-world-shop/config"
-	"github.com/tonrock01/another-world-shop/module/servers"
+	"github.com/tonrock01/another-world-shop/modules/servers"
 	"github.com/tonrock01/another-world-shop/pkg/database"
 )
 

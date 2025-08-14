@@ -1,8 +1,8 @@
 package appinfoUsecases
 
 import (
-	"github.com/tonrock01/another-world-shop/module/appinfo"
-	"github.com/tonrock01/another-world-shop/module/appinfo/appinfoRepositories"
+	"github.com/tonrock01/another-world-shop/modules/appinfo"
+	"github.com/tonrock01/another-world-shop/modules/appinfo/appinfoRepositories"
 )
 
 type IAppinfoUsecase interface {

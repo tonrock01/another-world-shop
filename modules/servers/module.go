@@ -11,6 +11,9 @@ import (
 	"github.com/tonrock01/another-world-shop/modules/middlewares/middlewaresRepositories"
 	"github.com/tonrock01/another-world-shop/modules/middlewares/middlewaresUsecases"
 	"github.com/tonrock01/another-world-shop/modules/monitor/monitorHandlers"
+	"github.com/tonrock01/another-world-shop/modules/products/productsHandlers"
+	"github.com/tonrock01/another-world-shop/modules/products/productsRepositories"
+	"github.com/tonrock01/another-world-shop/modules/products/productsUsecases"
 	"github.com/tonrock01/another-world-shop/modules/users/usersHandlers"
 	"github.com/tonrock01/another-world-shop/modules/users/usersRepositories"
 	"github.com/tonrock01/another-world-shop/modules/users/usersUsecases"
@@ -21,6 +24,7 @@ type IModuleFactory interface {
 	UsersModule()
 	AppinfoModule()
 	FilesModule()
+	ProductsModule()
 }
 
 type moduleFactory struct {
@@ -89,4 +93,17 @@ func (m *moduleFactory) FilesModule() {
 
 	router.Post("/upload", m.mid.JwtAuth(), m.mid.Authorize(2), handler.UploadFiles)
 	router.Patch("/delete", m.mid.JwtAuth(), m.mid.Authorize(2), handler.DeleteFile)
+}
+
+func (m *moduleFactory) ProductsModule() {
+	filesUsecase := filesUsecases.FilesUsecase(m.s.cfg)
+
+	repository := productsRepositories.ProductsRepository(m.s.db, m.s.cfg, filesUsecase)
+	usecase := productsUsecases.ProductsUsecase(repository)
+	handler := productsHandlers.ProductsHandler(m.s.cfg, usecase, filesUsecase)
+
+	router := m.r.Group("/products")
+
+	_ = router
+	_ = handler
 }

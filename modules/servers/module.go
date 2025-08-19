@@ -98,12 +98,19 @@ func (m *moduleFactory) FilesModule() {
 func (m *moduleFactory) ProductsModule() {
 	filesUsecase := filesUsecases.FilesUsecase(m.s.cfg)
 
-	repository := productsRepositories.ProductsRepository(m.s.db, m.s.cfg, filesUsecase)
-	usecase := productsUsecases.ProductsUsecase(repository)
-	handler := productsHandlers.ProductsHandler(m.s.cfg, usecase, filesUsecase)
+	productsRepository := productsRepositories.ProductsRepository(m.s.db, m.s.cfg, filesUsecase)
+	productsUsecase := productsUsecases.ProductsUsecase(productsRepository)
+	productsHandler := productsHandlers.ProductsHandler(m.s.cfg, productsUsecase, filesUsecase)
 
 	router := m.r.Group("/products")
 
-	_ = router
-	_ = handler
+	router.Post("/", m.mid.JwtAuth(), m.mid.Authorize(2), productsHandler.AddProduct)
+
+	router.Patch("/:product_id", m.mid.JwtAuth(), m.mid.Authorize(2), productsHandler.UpdateProduct)
+
+	router.Get("/", m.mid.ApiKeyAuth(), productsHandler.FindProducts)
+	router.Get("/:product_id", m.mid.ApiKeyAuth(), productsHandler.FindOneProduct)
+
+	router.Delete("/:product_id", m.mid.JwtAuth(), m.mid.Authorize(2), productsHandler.DeleteProduct)
+
 }

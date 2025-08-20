@@ -11,6 +11,9 @@ import (
 	"github.com/tonrock01/another-world-shop/modules/middlewares/middlewaresRepositories"
 	"github.com/tonrock01/another-world-shop/modules/middlewares/middlewaresUsecases"
 	"github.com/tonrock01/another-world-shop/modules/monitor/monitorHandlers"
+	"github.com/tonrock01/another-world-shop/modules/orders/ordersHandlers"
+	"github.com/tonrock01/another-world-shop/modules/orders/ordersRepositories"
+	"github.com/tonrock01/another-world-shop/modules/orders/ordersUsecases"
 	"github.com/tonrock01/another-world-shop/modules/products/productsHandlers"
 	"github.com/tonrock01/another-world-shop/modules/products/productsRepositories"
 	"github.com/tonrock01/another-world-shop/modules/products/productsUsecases"
@@ -25,6 +28,7 @@ type IModuleFactory interface {
 	AppinfoModule()
 	FilesModule()
 	ProductsModule()
+	OrdersModule()
 }
 
 type moduleFactory struct {
@@ -112,5 +116,24 @@ func (m *moduleFactory) ProductsModule() {
 	router.Get("/:product_id", m.mid.ApiKeyAuth(), productsHandler.FindOneProduct)
 
 	router.Delete("/:product_id", m.mid.JwtAuth(), m.mid.Authorize(2), productsHandler.DeleteProduct)
+
+}
+
+func (m *moduleFactory) OrdersModule() {
+	filesUsecase := filesUsecases.FilesUsecase(m.s.cfg)
+	productsRepository := productsRepositories.ProductsRepository(m.s.db, m.s.cfg, filesUsecase)
+
+	ordersRepository := ordersRepositories.OrdersRepository(m.s.db)
+	ordersUsecase := ordersUsecases.OrdersUsecase(ordersRepository, productsRepository)
+	ordersHandler := ordersHandlers.OrdersHandler(m.s.cfg, ordersUsecase)
+
+	router := m.r.Group("/orders")
+
+	router.Post("/", m.mid.JwtAuth(), ordersHandler.InsertOrder)
+
+	router.Get("/", m.mid.JwtAuth(), m.mid.Authorize(2), ordersHandler.FindOrder)
+	router.Get("/:user_id/:order_id", m.mid.JwtAuth(), m.mid.ParamsCheck(), ordersHandler.FindOneOrder)
+
+	router.Patch("/:user_id/:order_id", m.mid.JwtAuth(), m.mid.ParamsCheck(), ordersHandler.UpdateOrder)
 
 }

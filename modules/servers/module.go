@@ -5,7 +5,6 @@ import (
 	"github.com/tonrock01/another-world-shop/modules/appinfo/appinfoHandlers"
 	"github.com/tonrock01/another-world-shop/modules/appinfo/appinfoRepositories"
 	"github.com/tonrock01/another-world-shop/modules/appinfo/appinfoUsecases"
-	"github.com/tonrock01/another-world-shop/modules/files/filesHandlers"
 	"github.com/tonrock01/another-world-shop/modules/files/filesUsecases"
 	"github.com/tonrock01/another-world-shop/modules/middlewares/middlewaresHandlers"
 	"github.com/tonrock01/another-world-shop/modules/middlewares/middlewaresRepositories"
@@ -14,9 +13,7 @@ import (
 	"github.com/tonrock01/another-world-shop/modules/orders/ordersHandlers"
 	"github.com/tonrock01/another-world-shop/modules/orders/ordersRepositories"
 	"github.com/tonrock01/another-world-shop/modules/orders/ordersUsecases"
-	"github.com/tonrock01/another-world-shop/modules/products/productsHandlers"
 	"github.com/tonrock01/another-world-shop/modules/products/productsRepositories"
-	"github.com/tonrock01/another-world-shop/modules/products/productsUsecases"
 	"github.com/tonrock01/another-world-shop/modules/users/usersHandlers"
 	"github.com/tonrock01/another-world-shop/modules/users/usersRepositories"
 	"github.com/tonrock01/another-world-shop/modules/users/usersUsecases"
@@ -26,8 +23,8 @@ type IModuleFactory interface {
 	MonitorModule()
 	UsersModule()
 	AppinfoModule()
-	FilesModule()
-	ProductsModule()
+	FilesModule() IFilesModule
+	ProductsModule() IProductsModule
 	OrdersModule()
 }
 
@@ -89,35 +86,35 @@ func (m *moduleFactory) AppinfoModule() {
 	router.Delete("/:category_id/categories", m.mid.JwtAuth(), m.mid.Authorize(2), handler.RemoveCategory)
 }
 
-func (m *moduleFactory) FilesModule() {
-	usecase := filesUsecases.FilesUsecase(m.s.cfg)
-	handler := filesHandlers.FilesHandler(m.s.cfg, usecase)
+// func (m *moduleFactory) FilesModule() {
+// 	usecase := filesUsecases.FilesUsecase(m.s.cfg)
+// 	handler := filesHandlers.FilesHandler(m.s.cfg, usecase)
 
-	router := m.r.Group("/files")
+// 	router := m.r.Group("/files")
 
-	router.Post("/upload", m.mid.JwtAuth(), m.mid.Authorize(2), handler.UploadFiles)
-	router.Patch("/delete", m.mid.JwtAuth(), m.mid.Authorize(2), handler.DeleteFile)
-}
+// 	router.Post("/upload", m.mid.JwtAuth(), m.mid.Authorize(2), handler.UploadFiles)
+// 	router.Patch("/delete", m.mid.JwtAuth(), m.mid.Authorize(2), handler.DeleteFile)
+// }
 
-func (m *moduleFactory) ProductsModule() {
-	filesUsecase := filesUsecases.FilesUsecase(m.s.cfg)
+// func (m *moduleFactory) ProductsModule() {
+// 	filesUsecase := filesUsecases.FilesUsecase(m.s.cfg)
 
-	productsRepository := productsRepositories.ProductsRepository(m.s.db, m.s.cfg, filesUsecase)
-	productsUsecase := productsUsecases.ProductsUsecase(productsRepository)
-	productsHandler := productsHandlers.ProductsHandler(m.s.cfg, productsUsecase, filesUsecase)
+// 	productsRepository := productsRepositories.ProductsRepository(m.s.db, m.s.cfg, filesUsecase)
+// 	productsUsecase := productsUsecases.ProductsUsecase(productsRepository)
+// 	productsHandler := productsHandlers.ProductsHandler(m.s.cfg, productsUsecase, filesUsecase)
 
-	router := m.r.Group("/products")
+// 	router := m.r.Group("/products")
 
-	router.Post("/", m.mid.JwtAuth(), m.mid.Authorize(2), productsHandler.AddProduct)
+// 	router.Post("/", m.mid.JwtAuth(), m.mid.Authorize(2), productsHandler.AddProduct)
 
-	router.Patch("/:product_id", m.mid.JwtAuth(), m.mid.Authorize(2), productsHandler.UpdateProduct)
+// 	router.Patch("/:product_id", m.mid.JwtAuth(), m.mid.Authorize(2), productsHandler.UpdateProduct)
 
-	router.Get("/", m.mid.ApiKeyAuth(), productsHandler.FindProducts)
-	router.Get("/:product_id", m.mid.ApiKeyAuth(), productsHandler.FindOneProduct)
+// 	router.Get("/", m.mid.ApiKeyAuth(), productsHandler.FindProducts)
+// 	router.Get("/:product_id", m.mid.ApiKeyAuth(), productsHandler.FindOneProduct)
 
-	router.Delete("/:product_id", m.mid.JwtAuth(), m.mid.Authorize(2), productsHandler.DeleteProduct)
+// 	router.Delete("/:product_id", m.mid.JwtAuth(), m.mid.Authorize(2), productsHandler.DeleteProduct)
 
-}
+// }
 
 func (m *moduleFactory) OrdersModule() {
 	filesUsecase := filesUsecases.FilesUsecase(m.s.cfg)

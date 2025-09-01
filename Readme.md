@@ -10,6 +10,10 @@ A simple Go-based backend project for managing products, orders, users, and more
 - Monitoring and logging
 - Modular structure for easy maintenance
 
+## Entity Relationship Diagram (ERD)
+![ERD](assets/ERD/ERD_AnotherWorldShop.png)
+
+
 ## Project Structure
 - `main.go` — Entry point
 - `modules/` — Business logic (products, orders, users, etc.)

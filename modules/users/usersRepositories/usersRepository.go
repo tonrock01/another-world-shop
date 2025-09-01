@@ -2,10 +2,12 @@ package usersRepositories
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"time"
 
 	"github.com/jmoiron/sqlx"
+	"github.com/redis/go-redis/v9"
 	"github.com/tonrock01/another-world-shop/modules/users"
 	"github.com/tonrock01/another-world-shop/modules/users/usersPatterns"
 )
@@ -21,12 +23,14 @@ type IUsersRepository interface {
 }
 
 type usersRepository struct {
-	db *sqlx.DB
+	db          *sqlx.DB
+	redisClient *redis.Client
 }
 
-func UsersRepository(db *sqlx.DB) IUsersRepository {
+func UsersRepository(db *sqlx.DB, redisClient *redis.Client) IUsersRepository {
 	return &usersRepository{
-		db: db,
+		db:          db,
+		redisClient: redisClient,
 	}
 }
 
@@ -129,6 +133,8 @@ func (r *usersRepository) UpdateOauth(req *users.UserToken) error {
 }
 
 func (r *usersRepository) GetProfile(userId string) (*users.User, error) {
+	ctx := context.Background()
+
 	query := `
 	SELECT
 		"id",
@@ -139,10 +145,60 @@ func (r *usersRepository) GetProfile(userId string) (*users.User, error) {
 	WHERE "id" = $1;`
 
 	profile := new(users.User)
-	if err := r.db.Get(profile, query, userId); err != nil {
-		return nil, fmt.Errorf("get user failed: %v", err)
+
+	result, err := r.redisClient.Get(ctx, "user").Result()
+	if err != nil && err != redis.Nil {
+		return nil, fmt.Errorf("redis get failed: %v", err)
 	}
-	return profile, nil
+
+	// result, err := r.redisClient.HGetAll(ctx, "user").Result()
+	// if err != nil {
+	// 	return nil, fmt.Errorf("redis scan failed: %v", err)
+	// }
+	// if len(result) > 0 {
+	// 	// Map ข้อมูลจาก result ไปยัง profile
+	// 	profile.Id = result["id"]
+	// 	profile.Email = result["email"]
+	// 	profile.Username = result["username"]
+	// 	profile.RoleId, _ = strconv.Atoi(result["role_id"])
+	// 	return profile, nil
+	// }
+
+	if result != "" {
+		if err := json.Unmarshal([]byte(result), &profile); err != nil {
+			return nil, fmt.Errorf("unmarshal failed: %v", err)
+		}
+		fmt.Printf("Profile from Redis: %+v\n", profile)
+		return profile, nil
+	} else {
+		if err := r.db.Get(profile, query, userId); err != nil {
+			return nil, fmt.Errorf("get user failed: %v", err)
+		}
+
+		p, err := json.Marshal(&profile)
+		if err != nil {
+			return nil, fmt.Errorf("marshal failed: %v", err)
+		}
+
+		err = r.redisClient.Set(ctx, "user", p, 120*time.Second).Err()
+		if err != nil {
+			return nil, fmt.Errorf("redis set failed: %v", err)
+		}
+
+		// redisHash := map[string]interface{}{
+		// 	"id":       profile.Id,
+		// 	"email":    profile.Email,
+		// 	"username": profile.Username,
+		// 	"role_id":  profile.RoleId,
+		// }
+		// err = r.redisClient.HMSet(ctx, "user", redisHash).Err()
+		// if err != nil {
+		// 	return nil, fmt.Errorf("redis HMSet failed: %v", err)
+		// }
+		// r.redisClient.Expire(ctx, "user", 120*time.Second)
+
+		return profile, nil
+	}
 }
 
 func (r *usersRepository) DeleteOauth(oauthId string) error {

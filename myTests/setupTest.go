@@ -6,6 +6,7 @@ import (
 	"github.com/tonrock01/another-world-shop/config"
 	"github.com/tonrock01/another-world-shop/modules/servers"
 	"github.com/tonrock01/another-world-shop/pkg/database"
+	"github.com/tonrock01/another-world-shop/pkg/redis"
 )
 
 func SetupTest() servers.IModuleFactory {
@@ -13,7 +14,9 @@ func SetupTest() servers.IModuleFactory {
 
 	db := database.DBConnect(cfg.Db())
 
-	s := servers.NewServer(cfg, db)
+	redisClient := redis.RedisConnect(cfg.Redis())
+
+	s := servers.NewServer(cfg, db, redisClient)
 	return servers.InitModule(nil, s.GetServer(), nil)
 }
 

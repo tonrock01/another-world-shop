@@ -99,6 +99,24 @@ func LoadConfig(path string) IConfig {
 				return t
 			}(),
 		},
+		redis: &redis{
+			address:  envMap["REDIS_ADDRESS"],
+			password: envMap["REDIS_PASSWORD"],
+			db: func() int {
+				d, err := strconv.Atoi(envMap["REDIS_DB"])
+				if err != nil {
+					log.Fatalf("load db failed: %v", err)
+				}
+				return d
+			}(),
+			protocol: func() int {
+				p, err := strconv.Atoi(envMap["REDIS_PROTOCOL"])
+				if err != nil {
+					log.Fatalf("load protocol failed: %v", err)
+				}
+				return p
+			}(),
+		},
 	}
 }
 
@@ -106,12 +124,14 @@ type IConfig interface {
 	App() IAppConfig
 	Db() IDbConfig
 	Jwt() IJwtConfig
+	Redis() IRedisConfig
 }
 
 type config struct {
-	app *app
-	db  *db
-	jwt *jwt
+	app   *app
+	db    *db
+	jwt   *jwt
+	redis *redis
 }
 
 type IAppConfig interface {
@@ -207,3 +227,37 @@ func (j *jwt) AccessExpiresAt() int       { return j.accessExpiresAt }
 func (j *jwt) RefreshExpiresAt() int      { return j.refreshExpiresAt }
 func (j *jwt) SetJwtAccessExpires(t int)  { j.accessExpiresAt = t }
 func (j *jwt) SetJwtRefreshExpires(t int) { j.refreshExpiresAt = t }
+
+type IRedisConfig interface {
+	Address() string
+	Password() string
+	Db() int
+	Protocol() int
+}
+
+type redis struct {
+	address  string
+	password string
+	db       int
+	protocol int
+}
+
+func (c *config) Redis() IRedisConfig {
+	return c.redis
+}
+
+func (r *redis) Address() string {
+	return r.address
+}
+
+func (r *redis) Password() string {
+	return r.password
+}
+
+func (r *redis) Db() int {
+	return r.db
+}
+
+func (r *redis) Protocol() int {
+	return r.protocol
+}

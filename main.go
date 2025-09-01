@@ -6,6 +6,7 @@ import (
 	"github.com/tonrock01/another-world-shop/config"
 	"github.com/tonrock01/another-world-shop/modules/servers"
 	"github.com/tonrock01/another-world-shop/pkg/database"
+	"github.com/tonrock01/another-world-shop/pkg/redis"
 )
 
 func envPath() string {
@@ -22,5 +23,8 @@ func main() {
 	db := database.DBConnect(cfg.Db())
 	defer db.Close()
 
-	servers.NewServer(cfg, db).Start()
+	redisClient := redis.RedisConnect(cfg.Redis())
+	defer redisClient.Close()
+
+	servers.NewServer(cfg, db, redisClient).Start()
 }

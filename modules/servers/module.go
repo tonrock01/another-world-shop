@@ -55,7 +55,7 @@ func (m *moduleFactory) MonitorModule() {
 }
 
 func (m *moduleFactory) UsersModule() {
-	repository := usersRepositories.UsersRepository(m.s.db)
+	repository := usersRepositories.UsersRepository(m.s.db, m.s.redisClient)
 	usecase := usersUsecases.UsersUsecase(m.s.cfg, repository)
 	handler := usersHandlers.UsersHandler(m.s.cfg, usecase)
 

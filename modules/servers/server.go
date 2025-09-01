@@ -8,6 +8,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/jmoiron/sqlx"
+	"github.com/redis/go-redis/v9"
 	"github.com/tonrock01/another-world-shop/config"
 )
 
@@ -17,12 +18,13 @@ type IServer interface {
 }
 
 type server struct {
-	app *fiber.App
-	db  *sqlx.DB
-	cfg config.IConfig
+	app         *fiber.App
+	db          *sqlx.DB
+	cfg         config.IConfig
+	redisClient *redis.Client
 }
 
-func NewServer(cfg config.IConfig, db *sqlx.DB) IServer {
+func NewServer(cfg config.IConfig, db *sqlx.DB, redisClient *redis.Client) IServer {
 	return &server{
 		db:  db,
 		cfg: cfg,
@@ -34,6 +36,7 @@ func NewServer(cfg config.IConfig, db *sqlx.DB) IServer {
 			JSONEncoder:  json.Marshal,
 			JSONDecoder:  json.Unmarshal,
 		}),
+		redisClient: redisClient,
 	}
 }
 
